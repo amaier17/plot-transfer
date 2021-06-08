@@ -44,19 +44,20 @@ def transfer_plot(file, config):
     for dest in config["dest"]:
         for folder in dest["folders"]:
             ip = dest.get("dest-ip", None)
-            if not will_fit(dest["user"], ip, file, folder):
+            user = dest.get("user", None)
+            if not will_fit(user, ip, file, folder):
                 print(f"{folder} is full...skipping")
                 continue
             if ip is None:
                 print(f"Attempting local transfer to {folder}...", flush=True, end="")
             else:
-                print(f"Attempting transfer to {dest['dest-ip']}:{folder}...", flush=True, end="")
+                print(f"Attempting transfer to {ip}:{folder}...", flush=True, end="")
             try:
                 arg_list = ["rsync", f'--bwlimit={config["bw-limit"]}', "--remove-source-files", "-E", str(file)]
                 if ip is None:
                     arg_list += [f'{folder}']
                 else:
-                    arg_list += [f'{dest["user"]}@{dest["dest-ip"]}:{folder}']
+                    arg_list += [f'{user}@{ip}:{folder}']
 
                 check_call(arg_list)
                 print(f"Transfer succeeded", flush=True)
