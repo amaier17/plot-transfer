@@ -1,0 +1,38 @@
+{
+    "bw-limit": 80000,
+    "source": [
+        "/local-plot/"
+    ],
+    "dest": [{
+        "dest-ip": "ec-combine1",
+        "user": "transfer",
+        "folders": [
+            "/mnt/plots/disk1",
+            "/mnt/plots/disk3",
+            "/mnt/plots/disk0",
+            "/mnt/plots/disk2"
+        ]
+    },
+    {
+        "dest-ip": "192.168.100.54",
+        "user": "transfer",
+        "folders": [
+            "/mnt/plots/disk0",
+            "/mnt/plots/disk2",
+            "/mnt/plots/disk4",
+            "/mnt/plots/disk6",
+            "/mnt/plots/disk8",
+            "/mnt/plots/disk10",
+            "/mnt/plots/disk12",
+            "/mnt/plots/disk14",
+            "/mnt/plots/disk1",
+            "/mnt/plots/disk3",
+            "/mnt/plots/disk5",
+            "/mnt/plots/disk7",
+            "/mnt/plots/disk9",
+            "/mnt/plots/disk11",
+            "/mnt/plots/disk13",
+            "/mnt/plots/disk15"
+        ]
+    }]
+}
