@@ -3,6 +3,9 @@
 import argparse
 import glob
 import json
+import logging
+import logging.handlers
+import os
 import sys
 from subprocess import run, PIPE, check_output, check_call, DEVNULL
 from pathlib import Path
@@ -13,6 +16,21 @@ _TIME_THRESHOLD = 600
 
 class AllFullException(Exception):
     pass
+
+
+class SyslogBOMFormatter(logging.Formatter):
+    def format(self, record):
+        result = super().format(record)
+        return f"plot-transfer:{result}"
+
+
+handler = logging.handlers.SysLogHandler('/dev/log')
+formatter = SyslogBOMFormatter(logging.BASIC_FORMAT)
+handler.setFormatter(formatter)
+root = logging.getLogger()
+root.setLevel(os.environ.get("LOGLEVEL", "INFO"))
+root.addHandler(handler)
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="This script will check the plots directories and attempt to transfer them via rsync when completed")
@@ -27,6 +45,7 @@ def parse_args():
 
     return args
 
+
 def will_fit(user, ip, file, dest):
     if ip is None:
         output = check_output(["df", str(dest)])
@@ -39,18 +58,23 @@ def will_fit(user, ip, file, dest):
     else:
         return False
 
+
 def transfer_plot(file, config):
+    logging.info(f"Found plot {file} ready to transfer...")
     print(f"Found plot {file} ready to transfer...")
     for dest in config["dest"]:
         for folder in dest["folders"]:
             ip = dest.get("dest-ip", None)
             user = dest.get("user", None)
             if not will_fit(user, ip, file, folder):
+                logging.warning(f"{folder} is full...skipping")
                 print(f"{folder} is full...skipping")
                 continue
             if ip is None:
+                logging.info(f"Attempting local transfer to {folder}...")
                 print(f"Attempting local transfer to {folder}...", flush=True, end="")
             else:
+                logging.info(f"Attempting transfer to {ip}:{folder}...")
                 print(f"Attempting transfer to {ip}:{folder}...", flush=True, end="")
             try:
                 arg_list = ["rsync", f'--bwlimit={config["bw-limit"]}', "--remove-source-files", "-E", str(file)]
@@ -60,17 +84,21 @@ def transfer_plot(file, config):
                     arg_list += [f'{user}@{ip}:{folder}']
 
                 check_call(arg_list)
+                logging.info(f"Transfer succeeded")
                 print(f"Transfer succeeded", flush=True)
                 return
             except:
+                logging.error(f"Transfer failed")
                 print(f"Transfer failed", flush=True)
                 continue
 
     raise AllFullException(f"Could not fit {file} anywhere. Please check your json config.")
 
+
 if __name__ == "__main__":
     args = parse_args()
     config = json.load(args.config)
+    file_transferred = False
 
     # First we walk the source(s) directory to see if there are any finished plots
     for source in config["source"]:
@@ -81,5 +109,15 @@ if __name__ == "__main__":
             if init_size >= _THRESHOLD:
                 if delta_time >= _TIME_THRESHOLD:
                     transfer_plot(name, config)
+                    file_transferred = True
 
-    print("No files transferred")
+    if not file_transferred:
+        logging.warning("No files transferred!")
+        print("No files transferred")
+
+try:
+    exit(main())
+except Exception:
+    logging.exception("Exception in main()")
+    exit(1)
+
