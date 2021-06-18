@@ -1,5 +1,5 @@
 {
-    "bw-limit": "80m",
+    "bw-limit": "1500m",
     "source": [
         "/local-plot/"
     ],
