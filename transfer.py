@@ -12,7 +12,7 @@ from pathlib import Path
 import time
 
 _THRESHOLD = 107000000000
-_TIME_THRESHOLD = 600
+_TIME_THRESHOLD = 200
 
 class AllFullException(Exception):
     pass
