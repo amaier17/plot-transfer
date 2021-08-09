@@ -6,6 +6,7 @@
     "dest": [{
         "dest-ip": "ec-combine1",
         "user": "transfer",
+	"legacy": "legacy",
         "folders": [
             "/mnt/plots/disk1",
             "/mnt/plots/disk3",
@@ -16,6 +17,7 @@
     {
         "dest-ip": "192.168.100.54",
         "user": "transfer",
+	"legacy": "legacy",
         "folders": [
             "/mnt/plots/disk0",
             "/mnt/plots/disk2",

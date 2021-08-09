@@ -12,7 +12,7 @@ from pathlib import Path
 import time
 
 _THRESHOLD = 107000000000
-_TIME_THRESHOLD = 200
+_TIME_THRESHOLD = 100
 
 class AllFullException(Exception):
     pass
@@ -58,8 +58,19 @@ def will_fit(user, ip, file, dest):
     else:
         return False
 
+def check_legacy(user, ip, folder, legacy_folder):
+    try:
+        print("didn't fit but checking legacy")
+        plot = check_output(["ssh", f"{user}@{ip}", "-C", "ls", str(folder) + "/" + legacy_folder]).split()[0].decode()
+        logging.warning(f"Deleting legacy plot {plot}...")
+        print(f"Deleting legacy plot {plot}...")
+        check_call(["ssh", f"{user}@{ip}", "-C", "rm", str(folder) + "/" + legacy_folder + "/" + plot])
+    except FileNotFoundError:
+        pass
+
 
 def transfer_plot(file, config):
+    can_fit = True
     logging.info(f"Found plot {file} ready to transfer...")
     print(f"Found plot {file} ready to transfer...")
     for dest in config["dest"]:
@@ -67,6 +78,12 @@ def transfer_plot(file, config):
             ip = dest.get("dest-ip", None)
             user = dest.get("user", None)
             if not will_fit(user, ip, file, folder):
+                can_fit = False
+                if "legacy" in dest:
+                    check_legacy(user, ip, folder, dest["legacy"])
+                    if will_fit(user, ip, file, folder):
+                        can_fit = True
+            if not can_fit:
                 logging.warning(f"{folder} is full...skipping")
                 print(f"{folder} is full...skipping")
                 continue
@@ -83,6 +100,7 @@ def transfer_plot(file, config):
                 else:
                     arg_list += [f'{user}@{ip}:{folder}']
 
+                print(arg_list)
                 check_call(arg_list)
                 logging.info(f"Transfer succeeded")
                 print(f"Transfer succeeded", flush=True)
