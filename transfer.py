@@ -100,7 +100,6 @@ def transfer_plot(file, config):
                 else:
                     arg_list += [f'{user}@{ip}:{folder}']
 
-                print(arg_list)
                 check_call(arg_list)
                 logging.info(f"Transfer succeeded")
                 print(f"Transfer succeeded", flush=True)
