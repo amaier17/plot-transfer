@@ -65,7 +65,7 @@ def check_legacy(user, ip, folder, legacy_folder):
         logging.warning(f"Deleting legacy plot {plot}...")
         print(f"Deleting legacy plot {plot}...")
         check_call(["ssh", f"{user}@{ip}", "-C", "rm", str(folder) + "/" + legacy_folder + "/" + plot])
-    except FileNotFoundError:
+    except Exception:
         pass
 
 
