@@ -105,9 +105,9 @@ def transfer_plot(file, config):
                 logging.info(f"Transfer succeeded")
                 print(f"Transfer succeeded", flush=True)
                 return
-            except:
-                logging.error(f"Transfer failed")
-                print(f"Transfer failed", flush=True)
+            except Exception as e:
+                logging.error(f"Transfer failed for {e}")
+                print(f"Transfer failed for {e}", flush=True)
                 continue
 
     raise AllFullException(f"Could not fit {file} anywhere. Please check your json config.")
