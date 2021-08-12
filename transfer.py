@@ -70,11 +70,11 @@ def check_legacy(user, ip, folder, legacy_folder):
 
 
 def transfer_plot(file, config):
-    can_fit = True
     logging.info(f"Found plot {file} ready to transfer...")
     print(f"Found plot {file} ready to transfer...")
     for dest in config["dest"]:
         for folder in dest["folders"]:
+            can_fit = True
             ip = dest.get("dest-ip", None)
             user = dest.get("user", None)
             if not will_fit(user, ip, file, folder):
