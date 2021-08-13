@@ -94,7 +94,7 @@ def transfer_plot(file, config):
                 logging.info(f"Attempting transfer to {ip}:{folder}...")
                 print(f"Attempting transfer to {ip}:{folder}...", flush=True, end="")
             try:
-                arg_list = ["rsync", f'--bwlimit={config["bw-limit"]}', "--remove-source-files", "-E", str(file)]
+                arg_list = ["rsync", f'--bwlimit={config["bw-limit"]}', "--preallocate", "--remove-source-files", "-E", str(file)]
                 if ip is None:
                     arg_list += [f'{folder}']
                 else:
